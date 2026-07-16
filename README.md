@@ -1,9 +1,12 @@
+
 <p align="center">
-  <img src="assets/banner.png" alt="Loophole banner" width="100%" />
+  <img width="1280" height=auto alt="high-level-description-a-wide-pop-art-ma_wSOFhWtDWoeQuf7fbIE5eg_gxXTmUIIR2yzYfyM5ID3wQ" src="https://github.com/user-attachments/assets/a443f50d-9ff2-43a1-9494-6529a2af0086" />
 </p>
 
 <h1 align="center">
-  <img src="assets/icon.png" alt="Loophole icon" width="28" valign="middle" />
+  <!-- <img src="assets/icon.png" alt="Loophole icon" width="28" valign="middle" /> -->
+  <img width="128" height="128" alt="make-the-shackle-of-the-padlock-look-like-it-s-sha" src="https://github.com/user-attachments/assets/55448676-5b54-4d99-920a-838f8c4f1af2" />
+  
   Loophole
 </h1>
 
@@ -43,12 +46,16 @@ Every. Single. Time.
 ## Screenshots
 
 <p align="center">
-  <img src="assets/screenshot-qs-tile.png" alt="Quick Settings tile" width="30%" />
-  <img src="assets/screenshot-app.png" alt="In-app toggle screen" width="30%" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 42 36 AM" src="https://github.com/user-attachments/assets/fe1712c7-82d6-4a90-9773-94e4a2a6df46" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 43 08 AM" src="https://github.com/user-attachments/assets/c2c52a6f-4c8f-494d-8019-9b1617d39459" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 43 58 AM" src="https://github.com/user-attachments/assets/556e9885-8239-4a0d-95d7-2a81b5fdcb0d" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 11 AM" src="https://github.com/user-attachments/assets/dfec148a-f73a-41c6-a980-2ccbe4cc03c9" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 19 AM" src="https://github.com/user-attachments/assets/8bf298f9-ddea-4ff0-b016-abfc54cf2f31" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 40 AM" src="https://github.com/user-attachments/assets/b1dcaf33-cf53-42a3-986c-ac29607e5094" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 01 AM" src="https://github.com/user-attachments/assets/24bffebf-0833-452f-af30-f289d34b807b" />
+  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 12 AM" src="https://github.com/user-attachments/assets/59cc465e-8871-423d-90cb-95498ed2c072" />
+<img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 08 AM" src="https://github.com/user-attachments/assets/201fb6fb-ea20-4fd3-ba63-b400cb162b59" />
 </p>
-
-*(replace the files in `assets/` with your own screenshots or a short GIF of
-the tile toggling in the shade)*
 
 ## How it works
 
@@ -59,14 +66,14 @@ your manifest says. The only way to grant it is once, via `adb`, with the
 device connected:
 
 ```bash
-adb shell pm grant <applicationId> android.permission.WRITE_SECURE_SETTINGS
+adb shell pm grant com.shubhang.loophole android.permission.WRITE_SECURE_SETTINGS
 ```
 
 If you have more than one device connected, target the specific one:
 
 ```bash
 adb devices                     # list connected devices/serials
-adb -s <serial> shell pm grant <applicationId> android.permission.WRITE_SECURE_SETTINGS
+adb -s <serial> shell pm grant com.shubhang.loophole android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Once granted, the app can flip the setting instantly via
@@ -96,7 +103,7 @@ Grab the latest APK from the [Releases](../../releases) page and sideload it.
 ### One-time setup (required)
 
 ```bash
-adb shell pm grant <applicationId> android.permission.WRITE_SECURE_SETTINGS
+adb shell pm grant com.shubhang.loophole android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Then add the tile: pull down Quick Settings → tap the edit (pencil) icon →
