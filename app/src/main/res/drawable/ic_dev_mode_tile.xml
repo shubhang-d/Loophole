@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Code / terminal glyph: two chevrons with a slash between them.
+         The system tints Quick Settings tile icons, so no explicit tint is set. -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M9.4,16.6 L4.8,12 L9.4,7.4 L8,6 L2,12 L8,18 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14.6,16.6 L19.2,12 L14.6,7.4 L16,6 L22,12 L16,18 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M13.2,5.5 L10.1,18.5 L11.9,18.9 L15,5.9 Z" />
+</vector>

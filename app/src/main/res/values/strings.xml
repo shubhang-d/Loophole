@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Loophole</string>
+
+    <!-- Quick Settings tile -->
+    <string name="tile_label">Dev Mode</string>
+    <string name="tile_label_on">Dev Mode: ON</string>
+    <string name="tile_label_off">Dev Mode: OFF</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Toggle Developer Options with one tap.</string>
+    <string name="widget_open_dev_options">Open Developer Options</string>
+</resources>
