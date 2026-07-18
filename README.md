@@ -47,7 +47,8 @@ Every. Single. Time.
 
 <p align="center">
   <img width="160" alt="In-app switch — Developer Options OFF" src="assets/app-switch-off.png" />
-  <img width="160" alt="In-app switch with WRITE_SECURE_SETTINGS permission notice" src="assets/app-switch-permission.png" />
+  <img width="160" alt="In
+-app switch with WRITE_SECURE_SETTINGS permission notice" src="assets/app-switch-permission.png" />
   <img width="160" alt="In-app switch — Developer Options ON" src="assets/app-switch-on.png" />
   <img width="160" alt="System Developer Options screen" src="assets/developer-options.png" />
   <img width="160" alt="Add Quick Settings tile dialog" src="assets/add-tile-dialog.png" />

@@ -1,0 +1,5 @@
+Initial release.
+
+* Quick Settings tile to toggle Developer Options in one tap
+* In-app switch as a fallback
+* No ads, no analytics, no network permissions

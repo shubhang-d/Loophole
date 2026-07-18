@@ -1,0 +1,16 @@
+Loophole is a one-tap Quick Settings toggle for Android Developer Options.
+
+If you're an Android developer, Developer Options is basically always on. But a lot of banking and fintech apps treat that as a red flag and refuse to open, or silently degrade, while it's enabled -- even though you're not doing anything shady, you're just building.
+
+The normal fix is: open Settings, find Developer Options, toggle it off, open your banking app, then remember to turn it back on later. Loophole turns that into one tap from the notification shade.
+
+Features:
+* Reads and toggles Developer Options directly via a Quick Settings tile
+* Simple in-app switch as a fallback / status view
+* No ads, no analytics, no network permissions at all -- it touches exactly one system setting and nothing else
+
+Setup note: toggling Developer Options programmatically requires the WRITE_SECURE_SETTINGS permission, which Android only allows to be granted manually once via adb (it cannot be requested through a normal runtime permission dialog):
+
+adb shell pm grant <applicationId> android.permission.WRITE_SECURE_SETTINGS
+
+Full setup instructions are in the project README.
