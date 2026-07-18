@@ -37,6 +37,14 @@
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <receiver
+            android:name=".widget.ToggleReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.shubhang.loophole.action.TOGGLE_DEV_MODE" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".DevModeTileService"
             android:exported="true"
@@ -50,7 +58,7 @@
 
         <receiver
             android:name=".widget.LoopholeWidgetReceiver"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

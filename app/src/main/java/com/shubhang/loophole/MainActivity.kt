@@ -46,6 +46,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +60,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.shubhang.loophole.ui.theme.LoopholeTheme
+import com.shubhang.loophole.widget.refreshLoopholeWidgets
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,10 +116,13 @@ fun LoopholeScreen() {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val scope = rememberCoroutineScope()
     fun toggle(target: Boolean) {
         val ok = DevMode.setEnabled(context, target)
         permissionDenied = !ok
         enabled = DevMode.isEnabled(context)
+        // Keep the home-screen widget in sync with the change made from the app.
+        scope.launch { refreshLoopholeWidgets(context) }
     }
 
     Scaffold { padding ->
@@ -173,7 +179,7 @@ fun LoopholeScreen() {
 }
 
 @Composable
-private fun Header() {
+fun Header() {
     Column(modifier = Modifier.padding(top = 8.dp)) {
         Text(
             text = "Loophole",
@@ -189,7 +195,7 @@ private fun Header() {
 }
 
 @Composable
-private fun HeroToggleCard(enabled: Boolean, onToggle: () -> Unit) {
+fun HeroToggleCard(enabled: Boolean, onToggle: () -> Unit) {
     val containerColor by animateColorAsState(
         targetValue = if (enabled) {
             MaterialTheme.colorScheme.primaryContainer
@@ -291,7 +297,7 @@ private fun HeroToggleCard(enabled: Boolean, onToggle: () -> Unit) {
 }
 
 @Composable
-private fun PermissionCard(packageName: String) {
+fun PermissionCard(packageName: String) {
     ElevatedCard(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.elevatedCardColors(
@@ -335,7 +341,7 @@ private fun PermissionCard(packageName: String) {
 }
 
 @Composable
-private fun HowToCard() {
+fun HowToCard() {
     ElevatedCard(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.elevatedCardColors(

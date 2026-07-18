@@ -46,15 +46,15 @@ Every. Single. Time.
 ## Screenshots
 
 <p align="center">
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 42 36 AM" src="https://github.com/user-attachments/assets/fe1712c7-82d6-4a90-9773-94e4a2a6df46" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 43 08 AM" src="https://github.com/user-attachments/assets/c2c52a6f-4c8f-494d-8019-9b1617d39459" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 43 58 AM" src="https://github.com/user-attachments/assets/556e9885-8239-4a0d-95d7-2a81b5fdcb0d" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 11 AM" src="https://github.com/user-attachments/assets/dfec148a-f73a-41c6-a980-2ccbe4cc03c9" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 19 AM" src="https://github.com/user-attachments/assets/8bf298f9-ddea-4ff0-b016-abfc54cf2f31" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 44 40 AM" src="https://github.com/user-attachments/assets/b1dcaf33-cf53-42a3-986c-ac29607e5094" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 01 AM" src="https://github.com/user-attachments/assets/24bffebf-0833-452f-af30-f289d34b807b" />
-  <img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 12 AM" src="https://github.com/user-attachments/assets/59cc465e-8871-423d-90cb-95498ed2c072" />
-<img width="160" height=auto alt="Screenshot 2026-07-16 at 8 45 08 AM" src="https://github.com/user-attachments/assets/201fb6fb-ea20-4fd3-ba63-b400cb162b59" />
+  <img width="160" alt="In-app switch — Developer Options OFF" src="assets/app-switch-off.png" />
+  <img width="160" alt="In-app switch with WRITE_SECURE_SETTINGS permission notice" src="assets/app-switch-permission.png" />
+  <img width="160" alt="In-app switch — Developer Options ON" src="assets/app-switch-on.png" />
+  <img width="160" alt="System Developer Options screen" src="assets/developer-options.png" />
+  <img width="160" alt="Add Quick Settings tile dialog" src="assets/add-tile-dialog.png" />
+  <img width="160" alt="Quick Settings shade with the Dev Mode tile" src="assets/quick-settings-tile.png" />
+  <img width="160" alt="Home-screen widget in the widget picker" src="assets/widget-picker.png" />
+  <img width="160" alt="Home-screen widget — ON" src="assets/widget-on.png" />
+  <img width="160" alt="Home-screen widget — OFF" src="assets/widget-off.png" />
 </p>
 
 ## How it works

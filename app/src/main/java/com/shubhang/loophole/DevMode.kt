@@ -21,24 +21,29 @@ object DevMode {
 
     private const val TAG = "Loophole"
 
-    fun isEnabled(context: Context): Boolean =
-        Settings.Global.getInt(
+    fun isEnabled(context: Context): Boolean {
+        val enabled = Settings.Global.getInt(
             context.contentResolver,
             Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
             0
         ) == 1
+        Log.d(TAG, "isEnabled: $enabled")
+        return enabled
+    }
 
     /**
      * Writes the new state.
      * @return true on success, false if WRITE_SECURE_SETTINGS has not been granted.
      */
     fun setEnabled(context: Context, enabled: Boolean): Boolean = try {
-        Settings.Global.putInt(
+        Log.d(TAG, "setEnabled: setting to $enabled")
+        val success = Settings.Global.putInt(
             context.contentResolver,
             Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
             if (enabled) 1 else 0
         )
-        true
+        Log.d(TAG, "setEnabled: putInt returned $success, final value read: ${isEnabled(context)}")
+        success
     } catch (e: SecurityException) {
         Log.e(
             TAG,
