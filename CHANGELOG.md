@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-18
+
+### Fixed
+- Removed foojay-resolver Gradle plugin for F-Droid build compatibility
+
 ## [1.0.0] - 2026-07-18
 
 ### Added
@@ -15,5 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live tile state reflecting current Developer Options status
 - MIT license, initial public release
 
-[Unreleased]: https://github.com/shubhang-d/loophole/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/shubhang-d/loophole/compare/v1.0.1...HEAD
 [1.0.0]: https://github.com/shubhang-d/loophole/releases/tag/v1.0.0
+[1.0.1]: https://github.com/shubhang-d/loophole/releases/tag/v1.0.1
