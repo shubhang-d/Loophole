@@ -1,12 +1,31 @@
 <resources>
     <string name="app_name">Loophole</string>
 
-    <!-- Quick Settings tile -->
+    <!-- Quick Settings tile - Dev Mode -->
     <string name="tile_label">Dev Mode</string>
     <string name="tile_label_on">Dev Mode: ON</string>
     <string name="tile_label_off">Dev Mode: OFF</string>
 
-    <!-- Widget -->
+    <!-- Quick Settings tile - USB Debugging -->
+    <string name="usb_tile_label">USB Debugging</string>
+    <string name="usb_tile_label_on">USB Debug: ON</string>
+    <string name="usb_tile_label_off">USB Debug: OFF</string>
+
+    <!-- Quick Settings tile - Wireless Debugging -->
+    <string name="wireless_tile_label">Wireless Debugging</string>
+    <string name="wireless_tile_label_on">Wireless Debug: ON</string>
+    <string name="wireless_tile_label_off">Wireless Debug: OFF</string>
+    <string name="wireless_not_supported">Requires Android 11+</string>
+
+    <!-- Widgets -->
     <string name="widget_description">Toggle Developer Options with one tap.</string>
+    <string name="widget_dev_label">Dev Mode Toggle</string>
+    <string name="widget_dev_description">Toggle Developer Options with one tap.</string>
+    <string name="widget_usb_label">USB Debugging Toggle</string>
+    <string name="widget_usb_description">Toggle USB Debugging with one tap.</string>
+    <string name="widget_wireless_label">Wireless Debugging Toggle</string>
+    <string name="widget_wireless_description">Toggle Wireless Debugging with one tap.</string>
+    <string name="widget_combo_label">All-in-One Multi Toggle Widget</string>
+    <string name="widget_combo_description">Toggle Dev Mode, USB, and Wireless Debugging in one widget.</string>
     <string name="widget_open_dev_options">Open Developer Options</string>
 </resources>
