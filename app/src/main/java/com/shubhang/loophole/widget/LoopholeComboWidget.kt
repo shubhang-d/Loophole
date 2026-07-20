@@ -46,7 +46,7 @@ val ComboDevKey = booleanPreferencesKey("combo_dev_enabled")
 val ComboUsbKey = booleanPreferencesKey("combo_usb_enabled")
 val ComboWirelessKey = booleanPreferencesKey("combo_wireless_enabled")
 
-/** All-in-One Multi Widget containing DEV, USB, and WIFI toggles + Gear icon. */
+/** All-in-One Icon-based Multi Widget containing DEV, USB, and WIFI icons + Gear icon. */
 class LoopholeComboWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -107,7 +107,7 @@ private fun ComboWidgetBody(
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Toggle Chip 1: Dev Mode
+        // Chip 1: Dev Mode (Icon + Status)
         Box(
             modifier = GlanceModifier
                 .defaultWeight()
@@ -115,24 +115,22 @@ private fun ComboWidgetBody(
                 .background(chipDevBg)
                 .cornerRadius(18.dp)
                 .clickable(actionSendBroadcast(devIntent))
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "DEV",
-                    style = TextStyle(
-                        color = chipDevFg,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp
-                    )
+                Image(
+                    provider = ImageProvider(R.drawable.ic_dev_mode_tile),
+                    contentDescription = "Dev Mode",
+                    colorFilter = ColorFilter.tint(chipDevFg),
+                    modifier = GlanceModifier.size(20.dp)
                 )
                 Text(
                     text = if (devEnabled) "ON" else "OFF",
                     style = TextStyle(
                         color = chipDevFg,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        fontSize = 11.sp
                     )
                 )
             }
@@ -140,7 +138,7 @@ private fun ComboWidgetBody(
 
         Spacer(GlanceModifier.width(6.dp))
 
-        // Toggle Chip 2: USB Debugging
+        // Chip 2: USB Debugging (Icon + Status)
         Box(
             modifier = GlanceModifier
                 .defaultWeight()
@@ -148,24 +146,22 @@ private fun ComboWidgetBody(
                 .background(chipUsbBg)
                 .cornerRadius(18.dp)
                 .clickable(actionSendBroadcast(usbIntent))
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "USB",
-                    style = TextStyle(
-                        color = chipUsbFg,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp
-                    )
+                Image(
+                    provider = ImageProvider(R.drawable.ic_usb_tile),
+                    contentDescription = "USB Debugging",
+                    colorFilter = ColorFilter.tint(chipUsbFg),
+                    modifier = GlanceModifier.size(20.dp)
                 )
                 Text(
                     text = if (usbEnabled) "ON" else "OFF",
                     style = TextStyle(
                         color = chipUsbFg,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        fontSize = 11.sp
                     )
                 )
             }
@@ -173,7 +169,7 @@ private fun ComboWidgetBody(
 
         Spacer(GlanceModifier.width(6.dp))
 
-        // Toggle Chip 3: Wireless Debugging
+        // Chip 3: Wireless Debugging (Icon + Status)
         if (wirelessSupported) {
             Box(
                 modifier = GlanceModifier
@@ -182,24 +178,22 @@ private fun ComboWidgetBody(
                     .background(chipWirelessBg)
                     .cornerRadius(18.dp)
                     .clickable(actionSendBroadcast(wirelessIntent))
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "WIFI",
-                        style = TextStyle(
-                            color = chipWirelessFg,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp
-                        )
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_wireless_tile),
+                        contentDescription = "Wireless Debugging",
+                        colorFilter = ColorFilter.tint(chipWirelessFg),
+                        modifier = GlanceModifier.size(20.dp)
                     )
                     Text(
                         text = if (wirelessEnabled) "ON" else "OFF",
                         style = TextStyle(
                             color = chipWirelessFg,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
+                            fontSize = 11.sp
                         )
                     )
                 }
