@@ -35,21 +35,19 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.shubhang.loophole.DevMode
-import com.shubhang.loophole.DevOptionsActivity
+import com.shubhang.loophole.WirelessDevMode
+import com.shubhang.loophole.WirelessDebugActivity
 import com.shubhang.loophole.R
 
-val EnabledKey = booleanPreferencesKey("dev_mode_enabled")
+val WirelessEnabledKey = booleanPreferencesKey("wireless_debug_enabled")
 
-class LoopholeWidget : GlanceAppWidget() {
+class WirelessDebugWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            // Fall back to the live setting the first time, before any write has
-            // seeded the store (e.g. right after the widget is placed).
-            val enabled = currentState(EnabledKey) ?: DevMode.isEnabled(context)
+            val enabled = currentState(WirelessEnabledKey) ?: WirelessDevMode.isEnabled(context)
             GlanceTheme {
                 WidgetBody(enabled)
             }
@@ -72,13 +70,11 @@ private fun WidgetBody(enabled: Boolean) {
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Leading: status dot + ON/OFF label. Fills the remaining width so the
-        // whole left region is the toggle target and the label sits flush-left.
         Row(
             modifier = GlanceModifier
                 .defaultWeight()
                 .fillMaxHeight()
-                .clickable(actionSendBroadcast<ToggleReceiver>()),
+                .clickable(actionSendBroadcast<WirelessToggleReceiver>()),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -105,12 +101,12 @@ private fun WidgetBody(enabled: Boolean) {
                 .size(36.dp)
                 .cornerRadius(18.dp)
                 .background(gearBackground)
-                .clickable(actionStartActivity<DevOptionsActivity>()),
+                .clickable(actionStartActivity<WirelessDebugActivity>()),
             contentAlignment = Alignment.Center
         ) {
             Image(
-                provider = ImageProvider(R.drawable.ic_settings_gear),
-                contentDescription = "Open Developer Options",
+                provider = ImageProvider(R.drawable.ic_wireless_debug),
+                contentDescription = "Open Wireless Debugging",
                 colorFilter = ColorFilter.tint(gearForeground),
                 modifier = GlanceModifier.size(18.dp)
             )
@@ -118,17 +114,17 @@ private fun WidgetBody(enabled: Boolean) {
     }
 }
 
-class LoopholeWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = LoopholeWidget()
+class WirelessDebugWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = WirelessDebugWidget()
 }
 
-suspend fun refreshLoopholeWidgets(context: Context) {
-    val enabled = DevMode.isEnabled(context)
-    val widget = LoopholeWidget()
-    val ids = GlanceAppWidgetManager(context).getGlanceIds(LoopholeWidget::class.java)
+suspend fun refreshWirelessDebugWidgets(context: Context) {
+    val enabled = WirelessDevMode.isEnabled(context)
+    val widget = WirelessDebugWidget()
+    val ids = GlanceAppWidgetManager(context).getGlanceIds(WirelessDebugWidget::class.java)
     ids.forEach { id ->
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply { this[EnabledKey] = enabled }
+            prefs.toMutablePreferences().apply { this[WirelessEnabledKey] = enabled }
         }
         widget.update(context, id)
     }

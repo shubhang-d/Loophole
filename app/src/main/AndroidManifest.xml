@@ -37,6 +37,11 @@
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <activity
+            android:name=".WirelessDebugActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <receiver
             android:name=".widget.ToggleReceiver"
             android:exported="false">
@@ -45,11 +50,30 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".widget.WirelessToggleReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.shubhang.loophole.action.TOGGLE_WIRELESS_DEBUG" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".DevModeTileService"
             android:exported="true"
             android:icon="@drawable/ic_dev_mode_tile"
             android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".WirelessDebugTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_wireless_debug"
+            android:label="@string/tile_wireless_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
@@ -66,6 +90,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/loophole_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WirelessDebugWidgetReceiver"
+            android:exported="true"
+            android:label="@string/wireless_debugging_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wireless_debug_widget_info" />
         </receiver>
     </application>
 

@@ -61,6 +61,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.shubhang.loophole.ui.theme.LoopholeTheme
 import com.shubhang.loophole.widget.refreshLoopholeWidgets
+import com.shubhang.loophole.widget.refreshWirelessDebugWidgets
+import android.widget.Toast
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -81,35 +83,43 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * Prompts the system to add the Dev Mode tile to Quick Settings via a one-tap
+ * Prompts the system to add the tile to Quick Settings via a one-tap
  * dialog (API 33+). This avoids relying on the user finding it in the QS editor,
  * where a freshly installed custom tile can take a SystemUI restart to appear.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun requestAddTile(context: Context) {
+private fun requestAddTile(context: Context, serviceClass: Class<*>, labelRes: Int, iconRes: Int, onResult: (Int) -> Unit) {
     val statusBar = context.getSystemService(StatusBarManager::class.java) ?: return
     statusBar.requestAddTileService(
-        ComponentName(context, DevModeTileService::class.java),
-        context.getString(R.string.tile_label),
-        Icon.createWithResource(context, R.drawable.ic_dev_mode_tile),
+        ComponentName(context, serviceClass),
+        context.getString(labelRes),
+        Icon.createWithResource(context, iconRes),
         context.mainExecutor
-    ) { /* result code — no action needed */ }
+    ) { result ->
+        onResult(result)
+    }
 }
 
 @Composable
 fun LoopholeScreen() {
     val context = LocalContext.current
 
-    var enabled by remember { mutableStateOf(DevMode.isEnabled(context)) }
+    var devModeEnabled by remember { mutableStateOf(DevMode.isEnabled(context)) }
+    var wirelessEnabled by remember { mutableStateOf(WirelessDevMode.isEnabled(context)) }
+    var devTileAdded by remember { mutableStateOf(TileSettings.isDevTileAdded(context)) }
+    var wirelessTileAdded by remember { mutableStateOf(TileSettings.isWirelessTileAdded(context)) }
     var permissionDenied by remember { mutableStateOf(false) }
 
-    // Re-read the flag whenever the activity resumes so the UI reflects changes
-    // made from the Quick Settings tile, the widget, or the system settings app.
+    // Re-read the flags whenever the activity resumes so the UI reflects changes
+    // made from the Quick Settings tile, the widgets, or the system settings app.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                enabled = DevMode.isEnabled(context)
+                devModeEnabled = DevMode.isEnabled(context)
+                wirelessEnabled = WirelessDevMode.isEnabled(context)
+                devTileAdded = TileSettings.isDevTileAdded(context)
+                wirelessTileAdded = TileSettings.isWirelessTileAdded(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -117,12 +127,26 @@ fun LoopholeScreen() {
     }
 
     val scope = rememberCoroutineScope()
-    fun toggle(target: Boolean) {
+    fun toggleDevMode(target: Boolean) {
         val ok = DevMode.setEnabled(context, target)
         permissionDenied = !ok
-        enabled = DevMode.isEnabled(context)
+        if (!ok) {
+            Toast.makeText(context, "WRITE_SECURE_SETTINGS not granted", Toast.LENGTH_LONG).show()
+        }
+        devModeEnabled = DevMode.isEnabled(context)
         // Keep the home-screen widget in sync with the change made from the app.
         scope.launch { refreshLoopholeWidgets(context) }
+    }
+
+    fun toggleWirelessDebug(target: Boolean) {
+        val ok = WirelessDevMode.setEnabled(context, target)
+        permissionDenied = !ok
+        if (!ok) {
+            Toast.makeText(context, "WRITE_SECURE_SETTINGS not granted", Toast.LENGTH_LONG).show()
+        }
+        wirelessEnabled = WirelessDevMode.isEnabled(context)
+        // Keep the home-screen widget in sync with the change made from the app.
+        scope.launch { refreshWirelessDebugWidgets(context) }
     }
 
     Scaffold { padding ->
@@ -137,35 +161,140 @@ fun LoopholeScreen() {
             Header()
 
             HeroToggleCard(
-                enabled = enabled,
-                onToggle = { toggle(!enabled) }
+                title = "Developer Options",
+                iconRes = R.drawable.ic_dev_mode_tile,
+                enabled = devModeEnabled,
+                onToggle = { toggleDevMode(!devModeEnabled) },
+                descriptionOn = "Tap to turn off before opening a banking app.",
+                descriptionOff = "Tap to turn on when you want to develop."
             )
 
-            FilledTonalButton(
-                onClick = { DevMode.openDeveloperOptions(context) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(20.dp)
+            HeroToggleCard(
+                title = "Wireless Debugging",
+                iconRes = R.drawable.ic_wireless_debug,
+                enabled = wirelessEnabled,
+                onToggle = { toggleWirelessDebug(!wirelessEnabled) },
+                descriptionOn = "Tap to turn off Wireless Debugging.",
+                descriptionOff = "Tap to turn on Wireless Debugging."
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_settings_gear),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(Modifier.width(10.dp))
-                Text("Open Developer Options", fontWeight = FontWeight.SemiBold)
+                FilledTonalButton(
+                    onClick = { DevMode.openDeveloperOptions(context) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_settings_gear),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Dev Options", fontWeight = FontWeight.SemiBold)
+                }
+
+                FilledTonalButton(
+                    onClick = { WirelessDevMode.openWirelessDebugging(context) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_wireless_debug),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Wireless Debug", fontWeight = FontWeight.SemiBold)
+                }
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                OutlinedButton(
-                    onClick = { requestAddTile(context) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(20.dp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Add tile to Quick Settings", fontWeight = FontWeight.SemiBold)
+                    OutlinedButton(
+                        onClick = {
+                            if (!devTileAdded) {
+                                requestAddTile(
+                                    context,
+                                    DevModeTileService::class.java,
+                                    R.string.tile_label,
+                                    R.drawable.ic_dev_mode_tile
+                                ) { result ->
+                                    if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED ||
+                                        result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED
+                                    ) {
+                                        TileSettings.setDevTileAdded(context, true)
+                                        devTileAdded = true
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !devTileAdded,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = if (devTileAdded) "Dev QS Tile Added" else "Add Dev QS Tile",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (!devTileAdded) {
+                            Spacer(Modifier.weight(1f))
+                            Icon(
+                                painter = painterResource(R.drawable.ic_chevron_right),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            if (!wirelessTileAdded) {
+                                requestAddTile(
+                                    context,
+                                    WirelessDebugTileService::class.java,
+                                    R.string.tile_wireless_label,
+                                    R.drawable.ic_wireless_debug
+                                ) { result ->
+                                    if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED ||
+                                        result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED
+                                    ) {
+                                        TileSettings.setWirelessTileAdded(context, true)
+                                        wirelessTileAdded = true
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !wirelessTileAdded,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = if (wirelessTileAdded) "Wireless QS Tile Added" else "Add Wireless QS Tile",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (!wirelessTileAdded) {
+                            Spacer(Modifier.weight(1f))
+                            Icon(
+                                painter = painterResource(R.drawable.ic_chevron_right),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -195,7 +324,14 @@ fun Header() {
 }
 
 @Composable
-fun HeroToggleCard(enabled: Boolean, onToggle: () -> Unit) {
+fun HeroToggleCard(
+    title: String,
+    iconRes: Int,
+    enabled: Boolean,
+    onToggle: () -> Unit,
+    descriptionOn: String,
+    descriptionOff: String
+) {
     val containerColor by animateColorAsState(
         targetValue = if (enabled) {
             MaterialTheme.colorScheme.primaryContainer
@@ -223,73 +359,72 @@ fun HeroToggleCard(enabled: Boolean, onToggle: () -> Unit) {
 
     ElevatedCard(
         onClick = onToggle,
-        shape = RoundedCornerShape(32.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.elevatedCardColors(
             containerColor = containerColor,
             contentColor = contentColor
         ),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(iconBadgeColor),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(iconBadgeColor),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_dev_mode_tile),
-                        contentDescription = null,
-                        tint = if (enabled) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    tint = if (enabled) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Text(
+                    text = if (enabled) descriptionOn else descriptionOff,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor.copy(alpha = 0.7f)
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Switch(
                     checked = enabled,
                     onCheckedChange = { onToggle() }
                 )
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = "Developer Options",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = contentColor.copy(alpha = 0.7f)
-                )
-                AnimatedContent(
-                    targetState = enabled,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() },
-                    label = "status"
-                ) { on ->
-                    Text(
-                        text = if (on) "ON" else "OFF",
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Text(
-                    text = if (enabled) {
-                        "Tap to turn off before opening a banking app."
-                    } else {
-                        "Tap to turn on when you want to develop."
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = contentColor.copy(alpha = 0.7f)
+                    text = if (enabled) "ON" else "OFF",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                    softWrap = false
                 )
             }
         }
