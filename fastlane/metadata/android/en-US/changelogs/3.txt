@@ -1,0 +1,3 @@
+Fixed permission disclosure in app description (network-related permissions come from the Glance widget framework, not app network activity).
+Enabled reproducible builds.
+Enabled code and resource shrinking, reducing APK size.

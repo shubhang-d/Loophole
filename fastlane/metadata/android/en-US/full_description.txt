@@ -6,11 +6,14 @@ The normal fix is: open Settings, find Developer Options, toggle it off, open yo
 
 Features:
 * Reads and toggles Developer Options directly via a Quick Settings tile
+* Optional home screen widget as an alternative to the tile
 * Simple in-app switch as a fallback / status view
-* No ads, no analytics, no network permissions at all -- it touches exactly one system setting and nothing else
+* No ads, no analytics, no tracking
 
 Setup note: toggling Developer Options programmatically requires the WRITE_SECURE_SETTINGS permission, which Android only allows to be granted manually once via adb (it cannot be requested through a normal runtime permission dialog):
 
 adb shell pm grant <applicationId> android.permission.WRITE_SECURE_SETTINGS
 
 Full setup instructions are in the project README.
+
+A note on permissions: the app does not make network requests and holds no INTERNET permission. However, the manifest does include ACCESS_NETWORK_STATE, WAKE_LOCK, RECEIVE_BOOT_COMPLETED, and FOREGROUND_SERVICE. These come from Jetpack Glance, the framework used to build the home screen widget, which relies on WorkManager internally to schedule widget updates and survive process death. They are a byproduct of the widget framework itself, not of any network or background activity Loophole performs.
