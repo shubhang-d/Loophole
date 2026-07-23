@@ -15,12 +15,10 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
@@ -36,34 +34,32 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.shubhang.loophole.DevMode
 import com.shubhang.loophole.DevOptionsActivity
 import com.shubhang.loophole.R
 import com.shubhang.loophole.ToggleTarget
 import com.shubhang.loophole.UsbDebug
-import com.shubhang.loophole.WirelessDebug
 
-val EnabledKey = booleanPreferencesKey("dev_mode_enabled")
+val UsbEnabledKey = booleanPreferencesKey("usb_debug_enabled")
 
-/** Dedicated home-screen widget for toggling Developer Options (`DEV`). */
-class LoopholeWidget : GlanceAppWidget() {
+/** Dedicated home-screen widget for toggling USB Debugging (`USB`). */
+class UsbDebugWidget : GlanceAppWidget() {
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            val enabled = currentState(EnabledKey) ?: DevMode.isEnabled(context)
+            val enabled = currentState(UsbEnabledKey) ?: UsbDebug.isEnabled(context)
             GlanceTheme {
-                DevWidgetBody(enabled = enabled, context = context)
+                UsbWidgetBody(enabled = enabled, context = context)
             }
         }
     }
 }
 
 @Composable
-private fun DevWidgetBody(enabled: Boolean, context: Context) {
-    val devIntent = Intent(context, ToggleReceiver::class.java).apply {
-        putExtra(ToggleReceiver.EXTRA_TARGET, ToggleTarget.DEV_MODE.name)
+private fun UsbWidgetBody(enabled: Boolean, context: Context) {
+    val usbIntent = Intent(context, ToggleReceiver::class.java).apply {
+        putExtra(ToggleReceiver.EXTRA_TARGET, ToggleTarget.USB_DEBUG.name)
     }
 
     val chipBg = if (enabled) GlanceTheme.colors.primary else GlanceTheme.colors.surfaceVariant
@@ -83,18 +79,18 @@ private fun DevWidgetBody(enabled: Boolean, context: Context) {
             modifier = GlanceModifier
                 .defaultWeight()
                 .fillMaxHeight()
-                .clickable(actionSendBroadcast(devIntent)),
+                .clickable(actionSendBroadcast(usbIntent)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                provider = ImageProvider(R.drawable.ic_dev_mode_tile),
+                provider = ImageProvider(R.drawable.ic_usb_tile),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(chipFg),
                 modifier = GlanceModifier.size(20.dp)
             )
             Spacer(GlanceModifier.width(10.dp))
             Text(
-                text = if (enabled) "DEV ON" else "DEV OFF",
+                text = if (enabled) "USB ON" else "USB OFF",
                 style = TextStyle(
                     color = chipFg,
                     fontWeight = FontWeight.Bold,
@@ -123,56 +119,6 @@ private fun DevWidgetBody(enabled: Boolean, context: Context) {
     }
 }
 
-class LoopholeWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = LoopholeWidget()
-}
-
-suspend fun refreshLoopholeWidgets(context: Context) {
-    val devEnabled = DevMode.isEnabled(context)
-    val usbEnabled = UsbDebug.isEnabled(context)
-    val wirelessEnabled = WirelessDebug.isEnabled(context)
-
-    // 1. Refresh Dev Mode Widget
-    val devWidget = LoopholeWidget()
-    val devIds = GlanceAppWidgetManager(context).getGlanceIds(LoopholeWidget::class.java)
-    devIds.forEach { id ->
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply { this[EnabledKey] = devEnabled }
-        }
-        devWidget.update(context, id)
-    }
-
-    // 2. Refresh USB Debugging Widget
-    val usbWidget = UsbDebugWidget()
-    val usbIds = GlanceAppWidgetManager(context).getGlanceIds(UsbDebugWidget::class.java)
-    usbIds.forEach { id ->
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply { this[UsbEnabledKey] = usbEnabled }
-        }
-        usbWidget.update(context, id)
-    }
-
-    // 3. Refresh Wireless Debugging Widget
-    val wirelessWidget = WirelessDebugWidget()
-    val wirelessIds = GlanceAppWidgetManager(context).getGlanceIds(WirelessDebugWidget::class.java)
-    wirelessIds.forEach { id ->
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply { this[WirelessEnabledKey] = wirelessEnabled }
-        }
-        wirelessWidget.update(context, id)
-    }
-
-    // 4. Refresh All-in-One Multi Widget
-    val comboWidget = LoopholeComboWidget()
-    val comboIds = GlanceAppWidgetManager(context).getGlanceIds(LoopholeComboWidget::class.java)
-    comboIds.forEach { id ->
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[ComboDevKey] = devEnabled
-                this[ComboUsbKey] = usbEnabled
-                this[ComboWirelessKey] = wirelessEnabled
-            }
-        }
-        comboWidget.update(context, id)
-    }
+class UsbDebugWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = UsbDebugWidget()
 }
