@@ -37,11 +37,11 @@ Every. Single. Time.
 
 ## What it does
 
-- Reads and toggles `Settings.Global.DEVELOPMENT_SETTINGS_ENABLED` directly
-- Ships as a **Quick Settings tile** — pull down the shade, tap, done
-- Includes a simple in-app switch as a fallback / status view
-- No ads, no analytics, no network permissions at all — it touches exactly
-  one system setting and nothing else
+- Reads and toggles `Settings.Global.DEVELOPMENT_SETTINGS_ENABLED` (Developer Options) directly
+- Reads and toggles `"adb_wifi_enabled"` (Wireless Debugging) directly
+- Ships as **Quick Settings tiles** — pull down the shade, tap, done
+- Includes simple in-app switches and home screen widgets as fallbacks / status views
+- No ads, no analytics, no network permissions at all — it touches exactly these system settings and nothing else
 
 ## Screenshots
 
@@ -77,10 +77,11 @@ adb devices                     # list connected devices/serials
 adb -s <serial> shell pm grant com.shubhang.loophole android.permission.WRITE_SECURE_SETTINGS
 ```
 
-Once granted, the app can flip the setting instantly via
-`Settings.Global.putInt()`. The Quick Settings tile (`TileService`) reflects
-live state using `onStartListening()` and updates `Tile.STATE_ACTIVE` /
-`STATE_INACTIVE` on every toggle.
+Once granted, the app can flip the settings instantly via `Settings.Global.putInt()`:
+- `Settings.Global.DEVELOPMENT_SETTINGS_ENABLED` (Developer Options flag)
+- `Settings.Global.ADB_WIFI_ENABLED` (Wireless Debugging flag)
+
+The Quick Settings tiles (`TileService`) reflect the live states using `onStartListening()` and update their active/inactive states on every toggle. If you try to enable Wireless Debugging when Developer Options is off, the app automatically enables Developer Options first to satisfy the OS prerequisite.
 
 ## Installation
 

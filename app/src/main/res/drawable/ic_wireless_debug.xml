@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Wifi/Wireless icon -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,21l-12,-12C3.54,6.46 7.42,5 12,5s8.46,1.46 11.64,4L12,21z"/>
+</vector>

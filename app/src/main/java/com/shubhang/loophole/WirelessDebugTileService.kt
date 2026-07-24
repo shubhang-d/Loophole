@@ -6,60 +6,48 @@ import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.shubhang.loophole.widget.refreshLoopholeWidgets
+import com.shubhang.loophole.widget.refreshWirelessDebugWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Quick Settings tile that toggles Android's Developer Options.
- *
- * A single tap flips the state. If WRITE_SECURE_SETTINGS has not been granted
- * the write fails silently at the system level, so the tile opens the app
- * instead to show the adb-grant instructions.
- *
- * Note: the long-press action of a custom Quick Settings tile is controlled by
- * the system (it opens the owning app) and cannot be redirected by the app, so
- * "open Developer Options" is offered from inside the app and the widget rather
- * than via long-press here.
+ * Quick Settings tile that toggles Android's Wireless Debugging.
  */
-class DevModeTileService : TileService() {
+class WirelessDebugTileService : TileService() {
 
     override fun onTileAdded() {
         super.onTileAdded()
-        TileSettings.setDevTileAdded(this, true)
+        TileSettings.setWirelessTileAdded(this, true)
     }
 
     override fun onTileRemoved() {
         super.onTileRemoved()
-        TileSettings.setDevTileAdded(this, false)
+        TileSettings.setWirelessTileAdded(this, false)
     }
 
     override fun onStartListening() {
         super.onStartListening()
-        TileSettings.setDevTileAdded(this, true)
+        TileSettings.setWirelessTileAdded(this, true)
         refreshTile()
     }
 
     override fun onClick() {
         super.onClick()
-        val ok = DevMode.toggle(this)
+        val ok = WirelessDevMode.toggle(this)
         if (!ok) openApp()
         refreshTile()
-        // Push the change to the home-screen widget so it doesn't show a stale
-        // state. Uses applicationContext to avoid holding the service context
-        // beyond its lifetime.
         val appContext = applicationContext
         CoroutineScope(Dispatchers.Default).launch {
-            refreshLoopholeWidgets(appContext)
+            refreshWirelessDebugWidgets(appContext)
         }
     }
 
     private fun refreshTile() {
         val tile = qsTile ?: return
-        val enabled = DevMode.isEnabled(this)
+        val enabled = WirelessDevMode.isEnabled(this)
         tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = getString(if (enabled) R.string.tile_label_on else R.string.tile_label_off)
+        tile.label = getString(if (enabled) R.string.tile_wireless_label_on else R.string.tile_wireless_label_off)
         tile.updateTile()
     }
 

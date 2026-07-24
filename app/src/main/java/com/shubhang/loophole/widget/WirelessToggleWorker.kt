@@ -7,39 +7,38 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.shubhang.loophole.DevMode
+import com.shubhang.loophole.WirelessDevMode
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Robust background worker that toggles Developer Options and refreshes the widgets.
- * Using WorkManager ensures the task completes even if the app process is under pressure.
+ * Background worker that toggles Wireless Debugging and refreshes the widgets.
  */
-class ToggleWorker(
+class WirelessToggleWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         val context = applicationContext
-        val ok = DevMode.toggle(context)
-        Log.d("Loophole", "ToggleWorker: DevMode.toggle returned $ok")
+        val ok = WirelessDevMode.toggle(context)
+        Log.d("Loophole", "WirelessToggleWorker: WirelessDevMode.toggle returned $ok")
         if (!ok) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "WRITE_SECURE_SETTINGS not granted", Toast.LENGTH_LONG).show()
             }
         }
-        refreshLoopholeWidgets(context)
+        refreshWirelessDebugWidgets(context)
         return Result.success()
     }
 
     companion object {
-        private const val UNIQUE_WORK_NAME = "toggle_dev_mode"
+        private const val UNIQUE_WORK_NAME = "toggle_wireless_debug"
 
         fun enqueue(context: Context) {
-            Log.d("Loophole", "ToggleWorker.enqueue called")
-            val request = OneTimeWorkRequestBuilder<ToggleWorker>().build()
+            Log.d("Loophole", "WirelessToggleWorker.enqueue called")
+            val request = OneTimeWorkRequestBuilder<WirelessToggleWorker>().build()
             WorkManager.getInstance(context).enqueueUniqueWork(
                 UNIQUE_WORK_NAME,
                 ExistingWorkPolicy.REPLACE,

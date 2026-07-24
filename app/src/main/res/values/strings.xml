@@ -9,4 +9,14 @@
     <!-- Widget -->
     <string name="widget_description">Toggle Developer Options with one tap.</string>
     <string name="widget_open_dev_options">Open Developer Options</string>
+
+    <!-- Wireless Debugging -->
+    <string name="widget_wireless_description">Toggle Wireless Debugging with one tap.</string>
+    <string name="widget_open_wireless_debugging">Open Wireless Debugging</string>
+    <string name="wireless_debugging_label">Wireless Debugging</string>
+
+    <!-- Wireless Debugging Quick Settings tile -->
+    <string name="tile_wireless_label">Wireless Debug</string>
+    <string name="tile_wireless_label_on">Wireless Debug: ON</string>
+    <string name="tile_wireless_label_off">Wireless Debug: OFF</string>
 </resources>
