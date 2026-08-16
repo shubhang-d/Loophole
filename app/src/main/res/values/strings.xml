@@ -6,6 +6,11 @@
     <string name="tile_label_on">Dev Mode: ON</string>
     <string name="tile_label_off">Dev Mode: OFF</string>
 
+    <!-- Add-tile feedback -->
+    <string name="tile_add_added">Dev Mode tile added to Quick Settings</string>
+    <string name="tile_add_already_added">Dev Mode tile is already in Quick Settings</string>
+    <string name="tile_add_failed">Couldn\'t add the tile</string>
+
     <!-- Widget -->
     <string name="widget_description">Toggle Developer Options with one tap.</string>
     <string name="widget_open_dev_options">Open Developer Options</string>

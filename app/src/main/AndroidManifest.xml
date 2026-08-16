@@ -12,6 +12,7 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".LoopholeApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -21,7 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Loophole">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Loophole">
@@ -30,10 +31,22 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!--
+              Long-pressing the Quick Settings tile. SystemUI resolves this
+              action against the tile's own package first and only falls back to
+              the App Info screen when nothing handles it, so declaring it here
+              sends the long-press into the app instead.
+            -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity
-            android:name=".DevOptionsActivity"
+            android:name=".ui.DevOptionsActivity"
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
@@ -46,7 +59,7 @@
         </receiver>
 
         <service
-            android:name=".DevModeTileService"
+            android:name=".service.DevModeTileService"
             android:exported="true"
             android:icon="@drawable/ic_dev_mode_tile"
             android:label="@string/tile_label"

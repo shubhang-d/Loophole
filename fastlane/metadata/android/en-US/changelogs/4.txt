@@ -1,0 +1,4 @@
+Turning Developer Options on now switches USB debugging and wireless debugging off first, so it no longer brings back a debugging session you left enabled. Note that this ends any active adb connection.
+Long-pressing the Quick Settings tile now opens Loophole instead of the system App Info screen.
+Adding the tile now tells you whether it was added or is already there.
+The app, tile and widget now follow Developer Options live.

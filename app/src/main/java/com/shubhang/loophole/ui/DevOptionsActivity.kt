@@ -1,7 +1,8 @@
-package com.shubhang.loophole
+package com.shubhang.loophole.ui
 
 import android.app.Activity
 import android.os.Bundle
+import com.shubhang.loophole.appContainer
 
 /**
  * Invisible trampoline. The home-screen widget's gear button launches this
@@ -13,7 +14,7 @@ import android.os.Bundle
 class DevOptionsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DevMode.openDeveloperOptions(this)
+        appContainer.developerOptionsLauncher.open()
         finish()
     }
 }

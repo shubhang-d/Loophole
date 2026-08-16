@@ -1,4 +1,4 @@
-package com.shubhang.loophole
+package com.shubhang.loophole.service
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -6,47 +6,68 @@ import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.shubhang.loophole.widget.refreshLoopholeWidgets
+import com.shubhang.loophole.R
+import com.shubhang.loophole.appContainer
+import com.shubhang.loophole.settings.SettingsWriteResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
  * Quick Settings tile that toggles Android's Developer Options.
  *
  * A single tap flips the state. If WRITE_SECURE_SETTINGS has not been granted
- * the write fails silently at the system level, so the tile opens the app
- * instead to show the adb-grant instructions.
+ * the write fails, so the tile opens the app instead to show the adb-grant
+ * instructions.
  *
- * Note: the long-press action of a custom Quick Settings tile is controlled by
- * the system (it opens the owning app) and cannot be redirected by the app, so
- * "open Developer Options" is offered from inside the app and the widget rather
- * than via long-press here.
+ * Long-press opens the app rather than the system App Info screen. That is not
+ * configured here: SystemUI resolves ACTION_QS_TILE_PREFERENCES against this
+ * package, so the behaviour comes from the intent-filter MainActivity declares
+ * in the manifest.
  */
 class DevModeTileService : TileService() {
 
+    private val devSettings by lazy { appContainer.devSettings }
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var listeningJob: Job? = null
+
+    /**
+     * While the shade is open, mirror the repository. This keeps the tile
+     * correct even when the value changes elsewhere.
+     */
     override fun onStartListening() {
         super.onStartListening()
-        refreshTile()
+        listeningJob = serviceScope.launch {
+            devSettings.isEnabled.collect(::renderTile)
+        }
+    }
+
+    override fun onStopListening() {
+        listeningJob?.cancel()
+        listeningJob = null
+        super.onStopListening()
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
     }
 
     override fun onClick() {
         super.onClick()
-        val ok = DevMode.toggle(this)
-        if (!ok) openApp()
-        refreshTile()
-        // Push the change to the home-screen widget so it doesn't show a stale
-        // state. Uses applicationContext to avoid holding the service context
-        // beyond its lifetime.
-        val appContext = applicationContext
-        CoroutineScope(Dispatchers.Default).launch {
-            refreshLoopholeWidgets(appContext)
+        serviceScope.launch {
+            if (devSettings.toggle() is SettingsWriteResult.PermissionDenied) {
+                openApp()
+            }
         }
     }
 
-    private fun refreshTile() {
+    private fun renderTile(enabled: Boolean) {
         val tile = qsTile ?: return
-        val enabled = DevMode.isEnabled(this)
         tile.state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.label = getString(if (enabled) R.string.tile_label_on else R.string.tile_label_off)
         tile.updateTile()

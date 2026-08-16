@@ -14,12 +14,10 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
@@ -35,9 +33,9 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.shubhang.loophole.DevMode
-import com.shubhang.loophole.DevOptionsActivity
 import com.shubhang.loophole.R
+import com.shubhang.loophole.appContainer
+import com.shubhang.loophole.ui.DevOptionsActivity
 
 val EnabledKey = booleanPreferencesKey("dev_mode_enabled")
 
@@ -46,10 +44,12 @@ class LoopholeWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        // Fall back to the live setting the first time, before any write has
+        // seeded the store (e.g. right after the widget is placed).
+        val liveValue = context.appContainer.devSettings.currentValue()
+
         provideContent {
-            // Fall back to the live setting the first time, before any write has
-            // seeded the store (e.g. right after the widget is placed).
-            val enabled = currentState(EnabledKey) ?: DevMode.isEnabled(context)
+            val enabled = currentState(EnabledKey) ?: liveValue
             GlanceTheme {
                 WidgetBody(enabled)
             }
@@ -120,16 +120,4 @@ private fun WidgetBody(enabled: Boolean) {
 
 class LoopholeWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = LoopholeWidget()
-}
-
-suspend fun refreshLoopholeWidgets(context: Context) {
-    val enabled = DevMode.isEnabled(context)
-    val widget = LoopholeWidget()
-    val ids = GlanceAppWidgetManager(context).getGlanceIds(LoopholeWidget::class.java)
-    ids.forEach { id ->
-        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-            prefs.toMutablePreferences().apply { this[EnabledKey] = enabled }
-        }
-        widget.update(context, id)
-    }
 }
