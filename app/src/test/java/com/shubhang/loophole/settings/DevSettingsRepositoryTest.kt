@@ -13,11 +13,13 @@ import org.junit.Test
 class DevSettingsRepositoryTest {
 
     private val source = FakeSecureSettingsSource()
+    private val stateStore = InMemoryDebuggingStateStore()
     private val changes = mutableListOf<Boolean>()
 
     private val repository = DevSettingsRepository(
         source = source,
         ioDispatcher = UnconfinedTestDispatcher(),
+        stateStore = stateStore,
         onChanged = { changes += it },
     )
 
@@ -65,41 +67,84 @@ class DevSettingsRepositoryTest {
     }
 
     @Test
-    fun `enabling clears both debugging flags before switching dev options on`() = runTest {
+    fun `disabling dev options stops active debugging flags and records their state`() = runTest {
         source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
-        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, true)
-
-        repository.setEnabled(true)
-
-        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
-        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
-        // Order matters: debugging must be off before dev options comes on.
-        assertEquals(
-            listOf(
-                SecureSetting.USB_DEBUGGING to false,
-                SecureSetting.WIRELESS_DEBUGGING to false,
-                SecureSetting.DEV_OPTIONS to true,
-            ),
-            source.writes
-        )
-    }
-
-    @Test
-    fun `disabling leaves the debugging flags untouched`() = runTest {
-        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
 
         repository.setEnabled(false)
 
-        assertEquals(listOf(SecureSetting.DEV_OPTIONS to false), source.writes)
-        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
+        assertTrue(stateStore.getSavedState(SecureSetting.USB_DEBUGGING))
+        assertFalse(stateStore.getSavedState(SecureSetting.WIRELESS_DEBUGGING))
     }
 
     @Test
-    fun `toggling on also clears the debugging flags`() = runTest {
+    fun `disabling dev options when both debugging flags active stops both and records them`() = runTest {
         source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
         source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, true)
 
-        repository.toggle()
+        repository.setEnabled(false)
+
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+        assertTrue(stateStore.getSavedState(SecureSetting.USB_DEBUGGING))
+        assertTrue(stateStore.getSavedState(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `enabling dev options restores previously recorded USB debugging state`() = runTest {
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
+
+        // Turn off dev options (which stops USB debugging and saves state)
+        repository.setEnabled(false)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+
+        // Turn dev options back on
+        repository.setEnabled(true)
+        assertTrue(source.read(SecureSetting.DEV_OPTIONS))
+        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `enabling dev options restores previously recorded Wireless debugging state`() = runTest {
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, false)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, true)
+
+        repository.setEnabled(false)
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+
+        repository.setEnabled(true)
+        assertTrue(source.read(SecureSetting.DEV_OPTIONS))
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertTrue(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `enabling dev options restores both debugging flags if both were active`() = runTest {
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, true)
+
+        repository.setEnabled(false)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+
+        repository.setEnabled(true)
+        assertTrue(source.read(SecureSetting.DEV_OPTIONS))
+        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+        assertTrue(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `enabling dev options without prior active debugging leaves flags off`() = runTest {
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, false)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
+
+        repository.setEnabled(false)
+        repository.setEnabled(true)
 
         assertTrue(source.read(SecureSetting.DEV_OPTIONS))
         assertFalse(source.read(SecureSetting.USB_DEBUGGING))
@@ -107,13 +152,29 @@ class DevSettingsRepositoryTest {
     }
 
     @Test
-    fun `a denied debugging write stops before dev options is touched`() = runTest {
+    fun `toggling dev options off and then on restores previous debugging state`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
+
+        repository.toggle() // Flips DEV_OPTIONS to false
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+
+        repository.toggle() // Flips DEV_OPTIONS to true
+        assertTrue(source.read(SecureSetting.DEV_OPTIONS))
+        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `a denied debugging write during disable stops and leaves dev options alone`() = runTest {
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
         source.writesSucceed = false
 
-        val result = repository.setEnabled(true)
+        val result = repository.setEnabled(false)
 
         assertEquals(SettingsWriteResult.PermissionDenied, result)
-        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
         assertTrue(source.writes.isEmpty())
     }
 
@@ -124,5 +185,75 @@ class DevSettingsRepositoryTest {
         source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
 
         assertTrue(repository.isEnabled.first())
+    }
+
+    @Test
+    fun `toggling USB debugging writes to USB_DEBUGGING setting and updates stateStore`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+        val result = repository.toggle(SecureSetting.USB_DEBUGGING)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = true), result)
+        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+        assertTrue(repository.isUsbDebuggingEnabled.first())
+        assertTrue(stateStore.getSavedState(SecureSetting.USB_DEBUGGING))
+    }
+
+    @Test
+    fun `toggling Wireless debugging writes to WIRELESS_DEBUGGING setting and updates stateStore`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+        val result = repository.toggle(SecureSetting.WIRELESS_DEBUGGING)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = true), result)
+        assertTrue(source.read(SecureSetting.WIRELESS_DEBUGGING))
+        assertTrue(repository.isWirelessDebuggingEnabled.first())
+        assertTrue(stateStore.getSavedState(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `enabling USB debugging when dev options is off fails to enable and leaves dev options off`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, false)
+
+        val result = repository.setEnabled(SecureSetting.USB_DEBUGGING, true)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = false), result)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
+    }
+
+    @Test
+    fun `enabling Wireless debugging when dev options is off fails to enable and leaves dev options off`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
+
+        val result = repository.setEnabled(SecureSetting.WIRELESS_DEBUGGING, true)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = false), result)
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
+    }
+
+    @Test
+    fun `toggling USB debugging when dev options is off has no effect and remains off`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, false)
+
+        val result = repository.toggle(SecureSetting.USB_DEBUGGING)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = false), result)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
+    }
+
+    @Test
+    fun `toggling Wireless debugging when dev options is off has no effect and remains off`() = runTest {
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, false)
+
+        val result = repository.toggle(SecureSetting.WIRELESS_DEBUGGING)
+
+        assertEquals(SettingsWriteResult.Success(isEnabled = false), result)
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+        assertFalse(source.read(SecureSetting.DEV_OPTIONS))
     }
 }

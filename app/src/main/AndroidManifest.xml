@@ -55,6 +55,8 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.shubhang.loophole.action.TOGGLE_DEV_MODE" />
+                <action android:name="com.shubhang.loophole.action.TOGGLE_USB_DEBUG" />
+                <action android:name="com.shubhang.loophole.action.TOGGLE_WIRELESS_DEBUG" />
             </intent-filter>
         </receiver>
 
@@ -63,6 +65,28 @@
             android:exported="true"
             android:icon="@drawable/ic_dev_mode_tile"
             android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.UsbDebugTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_usb_tile"
+            android:label="@string/tile_usb_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.WirelessDebugTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_wireless_tile"
+            android:label="@string/tile_wireless_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

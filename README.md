@@ -44,11 +44,10 @@ Every. Single. Time.
 
 ## What it does
 
-- Reads and toggles `Settings.Global.DEVELOPMENT_SETTINGS_ENABLED` directly
-- Ships as a **Quick Settings tile** — pull down the shade, tap, done
-- Includes a simple in-app switch as a fallback / status view
-- No ads, no analytics, no network permissions at all — it touches exactly
-  one system setting and nothing else
+- Reads and toggles `Settings.Global.DEVELOPMENT_SETTINGS_ENABLED`, USB Debugging (`ADB_ENABLED`), and Wireless Debugging (`adb_wifi_enabled` on Android 11+)
+- Ships **Quick Settings tiles** for Developer Mode, USB Debugging, and Wireless Debugging — pull down the shade, tap, done
+- Features an **adaptive home-screen widget** built with Jetpack Glance — compact by default, resizing horizontally expands it to reveal direct toggles for USB and Wireless debugging
+- Includes a clean in-app dashboard as a fallback / status view
 
 ## Screenshots
 
@@ -122,10 +121,8 @@ drag **Loophole** into your active tiles.
 Granting `WRITE_SECURE_SETTINGS` is not something to do casually, so to be
 upfront about it:
 
-- The app touches **one setting only**: `DEVELOPMENT_SETTINGS_ENABLED`. It
-  does not read or write any other secure setting.
-- There are no network permissions in the manifest — the app cannot phone
-  home even if it wanted to.
+- The app touches **only development-related secure settings**: `DEVELOPMENT_SETTINGS_ENABLED`, `ADB_ENABLED`, and `adb_wifi_enabled`. It does not read or write any other secure setting.
+- Completely offline, privacy-first, and open-source with no ads, tracking, or telemetry.
 - The entire source is here for you to audit before granting the permission.
   If you don't trust a binary, build it yourself from source.
 

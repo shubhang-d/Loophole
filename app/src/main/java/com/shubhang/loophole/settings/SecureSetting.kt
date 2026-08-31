@@ -1,5 +1,6 @@
 package com.shubhang.loophole.settings
 
+import android.os.Build
 import android.provider.Settings
 
 /**
@@ -23,6 +24,12 @@ enum class SecureSetting(val key: String) {
      */
     WIRELESS_DEBUGGING("adb_wifi_enabled"),
     ;
+
+    val isSupportedOnCurrentSdk: Boolean
+        get() = when (this) {
+            WIRELESS_DEBUGGING -> Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+            else -> true
+        }
 
     companion object {
         /** Cleared before Developer Options is switched on. */

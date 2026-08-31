@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shubhang.loophole.appContainer
 import com.shubhang.loophole.settings.AddTileResult
+import com.shubhang.loophole.settings.TileType
 import com.shubhang.loophole.ui.theme.LoopholeTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,19 +36,20 @@ class MainActivity : ComponentActivity() {
                     )
                     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-                    // One-shot event: the system reports the outcome through a
-                    // callback, and the screen clears it once it has been shown.
-                    var addTileResult by remember { mutableStateOf<AddTileResult?>(null) }
+                    var addTileResult by remember { mutableStateOf<Pair<TileType, AddTileResult>?>(null) }
 
                     LoopholeScreen(
                         uiState = uiState,
                         packageName = packageName,
                         canAddQuickSettingsTile = container.quickSettingsTileManager.isSupported,
-                        onToggle = viewModel::onToggle,
+                        onToggleDevOptions = viewModel::onToggleDevOptions,
+                        onToggleUsbDebugging = viewModel::onToggleUsbDebugging,
+                        onToggleWirelessDebugging = viewModel::onToggleWirelessDebugging,
                         onOpenDeveloperOptions = { container.developerOptionsLauncher.open() },
-                        onAddQuickSettingsTile = {
-                            container.quickSettingsTileManager.requestAddTile { result ->
-                                addTileResult = result
+                        onOpenWirelessDebugging = { container.developerOptionsLauncher.openWirelessDebugging() },
+                        onAddQuickSettingsTile = { tileType ->
+                            container.quickSettingsTileManager.requestAddTile(tileType) { result ->
+                                addTileResult = tileType to result
                             }
                         },
                         addTileResult = addTileResult,

@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Wi-Fi / Wireless icon glyph -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,3C7.95,3 4.21,4.64 1.42,7.32L3.05,8.95C5.4,6.61 8.54,5.17 12,5.17c3.46,0 6.6,1.44 8.95,3.78l1.63,-1.63C19.79,4.64 16.05,3 12,3zM12,9c-2.61,0 -4.98,1.05 -6.71,2.75l1.63,1.63C8.28,12.02 10.02,11.17 12,11.17c1.98,0 3.72,0.85 5.08,2.21l1.63,-1.63C16.98,10.05 14.61,9 12,9zM12,15c-1.28,0 -2.43,0.52 -3.27,1.36l3.27,3.27 3.27,-3.27C14.43,15.52 13.28,15 12,15z" />
+</vector>

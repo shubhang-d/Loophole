@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-18
+
+### Added
+- USB Debugging and Wireless Debugging (Android 11+) toggle switches in the main app
+- Quick Settings tiles for USB Debugging and Wireless Debugging
+- Adaptive/responsive home-screen widget (Glance) that smoothly expands to reveal USB and Wireless debugging buttons when resized
+- Extensible card architecture for adding additional developer & accessibility toggles
+
 ## [1.1.0] - 2026-08-15
 
 ### Added
@@ -48,8 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live tile state reflecting current Developer Options status
 - MIT license, initial public release
 
-[Unreleased]: https://github.com/shubhang-d/loophole/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/shubhang-d/loophole/compare/v1.2.0...HEAD
 [1.0.0]: https://github.com/shubhang-d/loophole/releases/tag/v1.0.0
 [1.0.1]: https://github.com/shubhang-d/loophole/releases/tag/v1.0.1
 [1.0.2]: https://github.com/shubhang-d/loophole/releases/tag/v1.0.2
 [1.1.0]: https://github.com/shubhang-d/loophole/releases/tag/v1.1.0
+[1.2.0]: https://github.com/shubhang-d/loophole/releases/tag/v1.2.0

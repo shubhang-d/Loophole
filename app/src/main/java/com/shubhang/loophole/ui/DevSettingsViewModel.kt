@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.shubhang.loophole.settings.DevSettingsRepository
+import com.shubhang.loophole.settings.SecureSetting
 import com.shubhang.loophole.settings.SettingsWriteResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,8 +27,18 @@ class DevSettingsViewModel(
      * screen having to re-read anything on resume.
      */
     val uiState: StateFlow<DevSettingsUiState> =
-        combine(repository.isEnabled, permissionDenied) { isEnabled, denied ->
-            DevSettingsUiState(isEnabled = isEnabled, isPermissionDenied = denied)
+        combine(
+            repository.isEnabled,
+            repository.isUsbDebuggingEnabled,
+            repository.isWirelessDebuggingEnabled,
+            permissionDenied
+        ) { devEnabled, usbEnabled, wirelessEnabled, denied ->
+            DevSettingsUiState(
+                isEnabled = devEnabled,
+                isUsbDebuggingEnabled = usbEnabled,
+                isWirelessDebuggingEnabled = wirelessEnabled,
+                isPermissionDenied = denied,
+            )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
@@ -35,10 +46,24 @@ class DevSettingsViewModel(
         )
 
     fun onToggle() {
+        onToggleDevOptions()
+    }
+
+    fun onToggleDevOptions() {
         viewModelScope.launch {
-            // Toggling in the repository rather than off uiState keeps the write
-            // based on the freshly read system value.
-            permissionDenied.value = repository.toggle() is SettingsWriteResult.PermissionDenied
+            permissionDenied.value = repository.toggle(SecureSetting.DEV_OPTIONS) is SettingsWriteResult.PermissionDenied
+        }
+    }
+
+    fun onToggleUsbDebugging() {
+        viewModelScope.launch {
+            permissionDenied.value = repository.toggle(SecureSetting.USB_DEBUGGING) is SettingsWriteResult.PermissionDenied
+        }
+    }
+
+    fun onToggleWirelessDebugging() {
+        viewModelScope.launch {
+            permissionDenied.value = repository.toggle(SecureSetting.WIRELESS_DEBUGGING) is SettingsWriteResult.PermissionDenied
         }
     }
 

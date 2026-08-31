@@ -1,0 +1,4 @@
+Added USB Debugging and Wireless Debugging toggles directly from the app.
+Added Quick Settings tiles for USB Debugging and Wireless Debugging (Android 11+).
+Redesigned home-screen widget with an adaptive layout that exposes USB and Wireless debugging buttons when resized.
+Modularized UI for future switch integrations.

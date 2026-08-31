@@ -64,6 +64,68 @@ class DevSettingsViewModelTest {
     }
 
     @Test
+    fun `onToggleUsbDebugging toggles usb debugging state when dev options enabled`() = runTest(testDispatcher) {
+        val viewModel = viewModel()
+        collecting(viewModel)
+
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+
+        viewModel.onToggleUsbDebugging()
+
+        assertTrue(viewModel.uiState.value.isUsbDebuggingEnabled)
+        assertTrue(source.read(SecureSetting.USB_DEBUGGING))
+
+        viewModel.onToggleUsbDebugging()
+
+        assertFalse(viewModel.uiState.value.isUsbDebuggingEnabled)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+    }
+
+    @Test
+    fun `onToggleWirelessDebugging toggles wireless debugging state when dev options enabled`() = runTest(testDispatcher) {
+        val viewModel = viewModel()
+        collecting(viewModel)
+
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+
+        viewModel.onToggleWirelessDebugging()
+
+        assertTrue(viewModel.uiState.value.isWirelessDebuggingEnabled)
+        assertTrue(source.read(SecureSetting.WIRELESS_DEBUGGING))
+
+        viewModel.onToggleWirelessDebugging()
+
+        assertFalse(viewModel.uiState.value.isWirelessDebuggingEnabled)
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
+    fun `onToggleUsbDebugging does nothing when dev options disabled`() = runTest(testDispatcher) {
+        val viewModel = viewModel()
+        collecting(viewModel)
+
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+
+        viewModel.onToggleUsbDebugging()
+
+        assertFalse(viewModel.uiState.value.isUsbDebuggingEnabled)
+        assertFalse(source.read(SecureSetting.USB_DEBUGGING))
+    }
+
+    @Test
+    fun `onToggleWirelessDebugging does nothing when dev options disabled`() = runTest(testDispatcher) {
+        val viewModel = viewModel()
+        collecting(viewModel)
+
+        source.emitExternalChange(SecureSetting.DEV_OPTIONS, false)
+
+        viewModel.onToggleWirelessDebugging()
+
+        assertFalse(viewModel.uiState.value.isWirelessDebuggingEnabled)
+        assertFalse(source.read(SecureSetting.WIRELESS_DEBUGGING))
+    }
+
+    @Test
     fun `a blocked write surfaces the permission card and leaves the state off`() =
         runTest(testDispatcher) {
             source.writesSucceed = false
@@ -97,7 +159,11 @@ class DevSettingsViewModelTest {
         collecting(viewModel)
 
         source.emitExternalChange(SecureSetting.DEV_OPTIONS, true)
+        source.emitExternalChange(SecureSetting.USB_DEBUGGING, true)
+        source.emitExternalChange(SecureSetting.WIRELESS_DEBUGGING, true)
 
         assertTrue(viewModel.uiState.value.isEnabled)
+        assertTrue(viewModel.uiState.value.isUsbDebuggingEnabled)
+        assertTrue(viewModel.uiState.value.isWirelessDebuggingEnabled)
     }
 }
